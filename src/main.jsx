@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom"; // ⬅️ trocado
 import "./index.css";
 import App from "./App";
 import { FichaProvider } from "./context/FichaContext.jsx";
@@ -14,7 +14,7 @@ const suspense = (el) => (
   <React.Suspense fallback={<p className="p-6">Carregando...</p>}>{el}</React.Suspense>
 );
 
-const router = createBrowserRouter([
+const router = createHashRouter([ // ⬅️ trocado
   {
     path: "/",
     element: <App />,

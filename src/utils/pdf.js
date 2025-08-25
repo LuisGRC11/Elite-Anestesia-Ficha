@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { ficha } from "../store/fichaStorage";
 
-export async function gerarPDF(logo = "/elite-logo.png") {
+export async function gerarPDF(logo = `${import.meta.env.BASE_URL}elite-logo.png`) {
   try {
     const data = ficha.getAll();
     const doc = new jsPDF({ unit: "pt", format: "a4" });
