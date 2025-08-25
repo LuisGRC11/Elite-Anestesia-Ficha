@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import { gerarPDF } from "../utils/pdf";
 import { ficha } from "../store/fichaStorage";
 
-// paleta da Elite
 const BRAND = {
   blue: "#2bb3f8",
   green: "#71d340",
@@ -47,7 +46,7 @@ export default function TabsNav() {
 
   return (
     <header className="sticky top-0 z-50">
-      {/* faixa superior com marca + ações */}
+      {}
       <div
         className="w-full"
         style={{
@@ -63,7 +62,7 @@ export default function TabsNav() {
             </div>
           </div>
 
-          {/* ações — ficam sempre aparentes */}
+          {}
           <div className="ml-auto flex items-center gap-2">
             <button
               onClick={onPDF}
@@ -83,10 +82,10 @@ export default function TabsNav() {
         </div>
       </div>
 
-      {/* trilho de abas — sem scroll, cabe 1 linha em qualquer tela */}
+      {}
       <div className="bg-white/85 backdrop-blur border-b border-slate-200">
         <nav className="mx-auto max-w-6xl px-3 py-2">
-          {/* em telas estreitas usamos 4 colunas iguais (não rola, sem overflow) */}
+          {}
           <div className="grid grid-cols-4 gap-2">
             <Tab
               to="/"

@@ -1,4 +1,3 @@
-// Persistência simples em localStorage, sem Context
 const KEY = "ficha-anestesica:v1";
 
 const initial = {
@@ -37,7 +36,6 @@ export const ficha = {
   getAll() { return read(); },
   resetAll() { write({ ...initial }); },
 
-  // ----- paciente / cirurgia / etc
   setPaciente(patch) {
     const s = read(); s.paciente = { ...s.paciente, ...patch }; write(s);
   },
@@ -57,12 +55,10 @@ export const ficha = {
     const s = read(); s.monitorizacao = { ...s.monitorizacao, [nome]: !!val }; write(s);
   },
 
-  // ----- vitais
   addVital(v) {
     const s = read(); s.vitais.registros = [...s.vitais.registros, v]; write(s);
   },
 
-  // ----- meds
   addMedAdministrada(m) {
     const s = read(); s.meds.administradas = [...s.meds.administradas, m]; write(s);
   },
@@ -85,7 +81,6 @@ export const ficha = {
     const s = read(); s.meds.equipamentos = { ...s.meds.equipamentos, ...patch }; write(s);
   },
 
-  // ----- rpa
   addRpaDroga(d) {
     const s = read(); s.rpa.drogas = [...s.rpa.drogas, d]; write(s);
   },

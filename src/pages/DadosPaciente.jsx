@@ -4,8 +4,6 @@ import { ficha } from "../store/fichaStorage";
 
 export default function DadosPaciente() {
   const s = ficha.getAll();
-
-  // -------- Paciente / Cirurgia (controlados) ----------
   const [pac, setPac] = useState({
     nome: s.paciente.nome || "",
     asa: s.paciente.asa || "",
@@ -25,8 +23,6 @@ export default function DadosPaciente() {
     cirurgiao: s.cirurgia.cirurgiao || "",
     anestesista: s.cirurgia.anestesista || "",
   });
-
-  // -------- Intercorrências (controlado para mostrar/ocultar textarea) ----------
   const [houveInter, setHouveInter] = useState(!!s.intercorrencias.houve);
   const [textoInter, setTextoInter] = useState(s.intercorrencias.texto || "");
 
@@ -38,7 +34,6 @@ export default function DadosPaciente() {
     return Number.isFinite(v) ? v.toFixed(1) : "";
   }, [pac.peso, pac.altura]);
 
-  // handlers
   const setPacField = (k, v) => {
     setPac((old) => ({ ...old, [k]: v }));
     ficha.setPaciente({ [k]: v });
@@ -209,7 +204,7 @@ export default function DadosPaciente() {
 
       <SectionCard title="Intercorrências & Técnicas Anestésicas" tone="sky">
         <div className="grid gap-6">
-          {/* toggle */}
+          {}
           <label className="flex items-center gap-3">
             <input
               type="checkbox"
@@ -227,7 +222,7 @@ export default function DadosPaciente() {
             <span className="text-slate-700">Houve intercorrências</span>
           </label>
 
-          {/* textarea visível apenas se marcado */}
+          {}
           <div
             className={`transition-all duration-300 ${
               houveInter
@@ -249,7 +244,7 @@ export default function DadosPaciente() {
             />
           </div>
 
-          {/* técnicas */}
+          {}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
               "Geral Balanceada",

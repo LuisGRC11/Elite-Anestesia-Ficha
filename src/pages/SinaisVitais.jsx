@@ -14,7 +14,6 @@ const colors = {
 };
 
 export default function SinaisVitais() {
-  // carregar registros do storage
   const initial = (ficha.getAll()?.vitais?.registros) || [];
   const [form, setForm] = useState({ hora:"", pas:"", pad:"", fc:"", spo2:"", temp:"", etco2:"", fr:"", pni:"", oximetria:"", capno:"", saturacao:"", ritmo:"" });
   const [registros, setRegistros] = useState(initial);
@@ -45,9 +44,7 @@ export default function SinaisVitais() {
 
   const chartOptions = { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:"top" }, tooltip:{ mode:"nearest", intersect:false }}, scales:{ x:{ grid:{ display:false } }, y:{ beginAtZero:true } } };
 
-  // salvar uma imagem do gráfico no localStorage para o PDF
   useEffect(() => {
-    // esperar o chart renderizar
     const t = setTimeout(() => {
       const chart = chartRef.current;
       try {
