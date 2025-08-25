@@ -51,11 +51,7 @@ export default function SinaisVitais() {
   const initial = all?.vitais?.registros || [];
 
   const [step, setStep] = useState(10);
-
-  const [form, setForm] = useState({
-    hora:"",
-    ...DEFAULTS,
-  });
+  const [form, setForm] = useState({ hora:"", ...DEFAULTS });
   const [registros, setRegistros] = useState(initial);
 
   const chartRef = useRef(null);
@@ -91,9 +87,7 @@ export default function SinaisVitais() {
       mk("PAS","pas"), mk("PAD","pad"), mk("FC","fc"), mk("SpO₂","spo2"), mk("Temp","temp"),
       mk("EtCO₂","etco2"), mk("FR","fr"), mk("PNI","pni"), mk("Oximetria","oximetria"),
       mk("Capnografia","capno"), mk("Saturação","saturacao"),
-    ].map(ds=>({
-      ...ds, spanGaps:true, tension:0.3, pointRadius:4, pointHoverRadius:5, borderWidth:2,
-    }))
+    ].map(ds=>({ ...ds, spanGaps:true, tension:0.3, pointRadius:4, pointHoverRadius:5, borderWidth:2 }))
   }),[labels,registros]);
 
   const chartOptions = {
@@ -103,29 +97,38 @@ export default function SinaisVitais() {
     scales:{ x:{ grid:{ display:false } }, y:{ beginAtZero:true } }
   };
 
+  // --- captura do gráfico -> localStorage (mesma chave do store)
+  const captureChart = () => {
+    try {
+      const inst = chartRef.current;
+      const canvas =
+        inst?.canvas ||
+        inst?.canvasRef?.current ||
+        inst?.ctx?.canvas ||
+        inst?.chart?.canvas ||
+        null;
+      const dataUrl =
+        inst?.toBase64Image?.() ||
+        canvas?.toDataURL?.("image/png") ||
+        inst?.chart?.toBase64Image?.();
+      if (dataUrl) localStorage.setItem(ficha.chartKey(), dataUrl);
+    } catch (e) {
+      console.warn("Não foi possível capturar o gráfico:", e);
+    }
+  };
+
   useEffect(() => {
-    const t = setTimeout(() => {
-      const chartEl = chartRef.current;
-      try {
-        const dataUrl =
-          chartEl?.toBase64Image?.() ??
-          chartEl?.canvas?.toDataURL?.("image/png") ??
-          chartEl?.chart?.toBase64Image?.();
-        if (dataUrl) {
-          localStorage.setItem(ficha.chartKey(), dataUrl);
-        }
-      } catch (e) {
-        console.warn("Não foi possível capturar o gráfico:", e);
-      }
-    }, 120);
-    return () => clearTimeout(t);
+    const id = setTimeout(captureChart, 150);
+    return () => clearTimeout(id);
+  }, []);
+
+  useEffect(() => {
+    const id = setTimeout(captureChart, 120);
+    return () => clearTimeout(id);
   }, [registros]);
 
   const onEnterAdd = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      add();
-    }
+    if (e.key === "Enter") { e.preventDefault(); add(); }
   };
 
   const stepSeconds = step * 60;
@@ -134,53 +137,23 @@ export default function SinaisVitais() {
     <Page>
       <SectionCard title="Sinais Vitais — Hora a Hora" tone="emerald">
         <div className="grid gap-4 sm:grid-cols-3">
-          {/* Horário digitável + step e botões -/+ */}
           <Field label="Horário">
             <div className="flex items-stretch gap-2">
-              <button
-                type="button"
-                onClick={()=>bumpTime(-1)}
-                className="select-none rounded-xl bg-slate-100 px-3 text-lg font-bold text-slate-700 shadow-sm active:scale-95"
-                title={`− ${step} min`}
-              >
-                −
-              </button>
-              <input
-                type="time"
-                name="hora"
-                step={stepSeconds}
-                className={`${inputBase} text-center`}
-                value={form.hora}
-                onChange={onChange}
-              />
-              <button
-                type="button"
-                onClick={()=>bumpTime(1)}
-                className="select-none rounded-xl bg-slate-100 px-3 text-lg font-bold text-slate-700 shadow-sm active:scale-95"
-                title={`+ ${step} min`}
-              >
-                +
-              </button>
-              <select
-                className={`${selectBase} w-28`}
-                value={step}
-                onChange={(e)=>setStep(Number(e.target.value))}
-                title="Intervalo"
-              >
+              <button type="button" onClick={()=>bumpTime(-1)} className="select-none rounded-xl bg-slate-100 px-3 text-lg font-bold text-slate-700 shadow-sm active:scale-95">−</button>
+              <input type="time" name="hora" step={stepSeconds} className={`${inputBase} text-center`} value={form.hora} onChange={onChange}/>
+              <button type="button" onClick={()=>bumpTime(1)} className="select-none rounded-xl bg-slate-100 px-3 text-lg font-bold text-slate-700 shadow-sm active:scale-95">+</button>
+              <select className={`${selectBase} w-28`} value={step} onChange={(e)=>setStep(Number(e.target.value))}>
                 <option value={5}>5 min</option>
                 <option value={10}>10 min</option>
               </select>
             </div>
-            <p className="mt-1 text-xs text-slate-500">
-              Digite qualquer horário e use os botões/intervalo para avançar rapidamente.
-            </p>
+            <p className="mt-1 text-xs text-slate-500">Digite qualquer horário e use os botões/intervalo.</p>
           </Field>
 
-          {/* Steppers com defaults e +/- */}
           <Stepper label="PAS (mmHg)" name="pas" value={form.pas} onChange={onChange} step={STEPS.pas} limits={LIMITS.pas}/>
           <Stepper label="PAD (mmHg)" name="pad" value={form.pad} onChange={onChange} step={STEPS.pad} limits={LIMITS.pad}/>
-          <Stepper label="FC (bpm)" name="fc" value={form.fc} onChange={onChange} step={STEPS.fc} limits={LIMITS.fc}/>
-          <Stepper label="SpO₂ (%)" name="spo2" value={form.spo2} onChange={onChange} step={STEPS.spo2} limits={LIMITS.spo2}/>
+          <Stepper label="FC (bpm)"  name="fc"  value={form.fc}  onChange={onChange} step={STEPS.fc}  limits={LIMITS.fc}/>
+          <Stepper label="SpO₂ (%)"  name="spo2" value={form.spo2} onChange={onChange} step={STEPS.spo2} limits={LIMITS.spo2}/>
           <Stepper label="Temp (°C)" name="temp" value={form.temp} onChange={onChange} step={STEPS.temp} limits={LIMITS.temp} decimals={1}/>
           <Stepper label="EtCO₂ (mmHg)" name="etco2" value={form.etco2} onChange={onChange} step={STEPS.etco2} limits={LIMITS.etco2}/>
           <Stepper label="FR (irpm)" name="fr" value={form.fr} onChange={onChange} step={STEPS.fr} limits={LIMITS.fr}/>
@@ -223,9 +196,7 @@ export default function SinaisVitais() {
             </thead>
             <tbody>
               {registros.length===0 && (
-                <tr>
-                  <td className="px-3 py-4 text-slate-500" colSpan={13}>Nenhum registro ainda.</td>
-                </tr>
+                <tr><td className="px-3 py-4 text-slate-500" colSpan={13}>Nenhum registro ainda.</td></tr>
               )}
               {registros.map((r,i)=>(
                 <tr key={i} className="odd:bg-slate-50">
@@ -241,7 +212,7 @@ export default function SinaisVitais() {
 
       <SectionCard title="Gráfico de Sinais Vitais" tone="lavender">
         <div className="h-72 sm:h-80">
-          <Line ref={chartRef} data={chartData} options={chartOptions} />
+          <Line ref={(node) => (chartRef.current = node)} data={chartData} options={chartOptions} />
         </div>
       </SectionCard>
     </Page>
@@ -265,52 +236,19 @@ function Stepper({ label, name, value, onChange, step = 1, limits = [Number.NEGA
   return (
     <Field label={label}>
       <div className="flex items-stretch gap-2">
-        <button
-          type="button"
-          onClick={()=>bump(-1)}
-          className="select-none rounded-xl bg-slate-100 px-3 text-lg font-bold text-slate-700 shadow-sm active:scale-95"
-          aria-label={`Diminuir ${label}`}
-        >
-          −
-        </button>
-        <input
-          name={name}
-          type="number"
-          inputMode="decimal"
-          step={decimals > 0 ? String(step) : "1"}
-          className={`${inputBase} text-center`}
-          value={value}
-          onChange={onChange}
-          onKeyDown={onKeyDown}
-        />
-        <button
-          type="button"
-          onClick={()=>bump(1)}
-          className="select-none rounded-xl bg-slate-100 px-3 text-lg font-bold text-slate-700 shadow-sm active:scale-95"
-          aria-label={`Aumentar ${label}`}
-        >
-          +
-        </button>
+        <button type="button" onClick={()=>bump(-1)} className="select-none rounded-xl bg-slate-100 px-3 text-lg font-bold text-slate-700 shadow-sm active:scale-95" aria-label={`Diminuir ${label}`}>−</button>
+        <input name={name} type="number" inputMode="decimal" step={decimals > 0 ? String(step) : "1"} className={`${inputBase} text-center`} value={value} onChange={onChange} onKeyDown={onKeyDown}/>
+        <button type="button" onClick={()=>bump(1)} className="select-none rounded-xl bg-slate-100 px-3 text-lg font-bold text-slate-700 shadow-sm active:scale-95" aria-label={`Aumentar ${label}`}>+</button>
       </div>
-      <p className="mt-1 text-[11px] text-slate-500">
-        Passo: {step} {Number.isFinite(min)&&Number.isFinite(max) ? `• Faixa ${min}–${max}` : ""}
-      </p>
+      <p className="mt-1 text-[11px] text-slate-500">Passo: {step} {Number.isFinite(min)&&Number.isFinite(max) ? `• Faixa ${min}–${max}` : ""}</p>
     </Field>
   );
 }
 
-const toNum = (v)=> v===""||v==null ? null : Number.parseFloat(String(v).replace(",","."));
+const toNum = (v)=> v===""||v==null ? null : Number.parseFloat(String(v).replace(",",".")); 
 const mapNum = (f)=>({
   ...f,
-  pas:toNum(f.pas),
-  pad:toNum(f.pad),
-  fc:toNum(f.fc),
-  spo2:toNum(f.spo2),
-  temp:toNum(f.temp),
-  etco2:toNum(f.etco2),
-  fr:toNum(f.fr),
-  pni:toNum(f.pni),
-  oximetria:toNum(f.oximetria),
-  capno:toNum(f.capno),
-  saturacao:toNum(f.saturacao),
+  pas:toNum(f.pas), pad:toNum(f.pad), fc:toNum(f.fc), spo2:toNum(f.spo2), temp:toNum(f.temp),
+  etco2:toNum(f.etco2), fr:toNum(f.fr), pni:toNum(f.pni), oximetria:toNum(f.oximetria),
+  capno:toNum(f.capno), saturacao:toNum(f.saturacao),
 });
