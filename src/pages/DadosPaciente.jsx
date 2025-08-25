@@ -2,8 +2,43 @@ import { useMemo, useState } from "react";
 import { Page, SectionCard, Field, inputBase, selectBase, checkboxBase } from "../components/ui";
 import { ficha } from "../store/fichaStorage";
 
+const onlyDigits = (s) => (s || "").replace(/\D/g, "");
+
+function maskDate(s) {
+  const d = onlyDigits(s).slice(0, 8);
+  const p1 = d.slice(0, 2);
+  const p2 = d.slice(2, 4);
+  const p3 = d.slice(4, 8);
+  return [p1, p2, p3].filter(Boolean).join("/");
+}
+
+function maskInt(s, max = 3) {
+  return onlyDigits(s).slice(0, max);
+}
+
+function maskDecimalBR(s, maxInt = 3, maxDec = 1) {
+  if (!s) return "";
+  let x = String(s).replace(/[^\d,\.]/g, "").replace(/\./g, ",");
+  const i = x.indexOf(",");
+  if (i !== -1) x = x.slice(0, i + 1) + x.slice(i + 1).replace(/,/g, "");
+  let [int = "", dec = ""] = x.split(",");
+  int = int.replace(/^0+(?=\d)/, "");
+  int = int.slice(0, maxInt);
+  dec = dec.slice(0, maxDec);
+  return dec ? `${int || "0"},${dec}` : int;
+}
+
+function toTitleCase(s) {
+  return (s || "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/(^|\s|[({["'-])([a-zà-ú])/g, (_, a, b) => a + b.toUpperCase());
+}
+
 export default function DadosPaciente() {
   const s = ficha.getAll();
+
   const [pac, setPac] = useState({
     nome: s.paciente.nome || "",
     asa: s.paciente.asa || "",
@@ -23,6 +58,7 @@ export default function DadosPaciente() {
     cirurgiao: s.cirurgia.cirurgiao || "",
     anestesista: s.cirurgia.anestesista || "",
   });
+
   const [houveInter, setHouveInter] = useState(!!s.intercorrencias.houve);
   const [textoInter, setTextoInter] = useState(s.intercorrencias.texto || "");
 
@@ -53,9 +89,15 @@ export default function DadosPaciente() {
                 className={inputBase}
                 placeholder="Nome e sobrenome"
                 value={pac.nome}
+                autoComplete="name"
                 onChange={(e) => setPacField("nome", e.target.value)}
+                onBlur={(e) => {
+                  const v = toTitleCase(e.target.value);
+                  setPacField("nome", v);
+                }}
               />
             </Field>
+
             <Field label="Classificação ASA">
               <select
                 className={selectBase}
@@ -73,31 +115,38 @@ export default function DadosPaciente() {
           <div className="grid gap-4 sm:grid-cols-4">
             <Field label="Idade">
               <input
-                type="number"
                 className={inputBase}
+                inputMode="numeric"
+                pattern="\d*"
                 placeholder="Anos"
                 value={pac.idade}
-                onChange={(e) => setPacField("idade", e.target.value)}
+                maxLength={3}
+                onChange={(e) => setPacField("idade", maskInt(e.target.value, 3))}
               />
             </Field>
+
             <Field label="Peso (kg)">
               <input
-                type="number"
                 className={inputBase}
-                placeholder="kg"
+                inputMode="decimal"
+                placeholder="Ex.: 72,5"
                 value={pac.peso}
-                onChange={(e) => setPacField("peso", e.target.value)}
+                onChange={(e) => setPacField("peso", maskDecimalBR(e.target.value, 3, 1))}
               />
             </Field>
+
             <Field label="Altura (cm)">
               <input
-                type="number"
                 className={inputBase}
-                placeholder="cm"
+                inputMode="numeric"
+                pattern="\d*"
+                placeholder="Ex.: 175"
                 value={pac.altura}
-                onChange={(e) => setPacField("altura", e.target.value)}
+                maxLength={3}
+                onChange={(e) => setPacField("altura", maskInt(e.target.value, 3))}
               />
             </Field>
+
             <Field label="IMC">
               <input
                 readOnly
@@ -120,6 +169,7 @@ export default function DadosPaciente() {
                 <option>E2 — Emergência</option>
               </select>
             </Field>
+
             <Field label="Alergias">
               <input
                 className={inputBase}
@@ -141,15 +191,18 @@ export default function DadosPaciente() {
                 placeholder="Nome da clínica ou hospital"
                 value={cir.hospital}
                 onChange={(e) => setCirField("hospital", e.target.value)}
+                onBlur={(e) => setCirField("hospital", toTitleCase(e.target.value))}
               />
             </Field>
+
             <Field label="Data da Cirurgia">
               <input
                 className={inputBase}
-                placeholder="dd/mm/aaaa"
                 inputMode="numeric"
+                placeholder="dd/mm/aaaa"
+                maxLength={10}
                 value={cir.data}
-                onChange={(e) => setCirField("data", e.target.value)}
+                onChange={(e) => setCirField("data", maskDate(e.target.value))}
               />
             </Field>
           </div>
@@ -188,6 +241,7 @@ export default function DadosPaciente() {
                 placeholder="Nome do cirurgião"
                 value={cir.cirurgiao}
                 onChange={(e) => setCirField("cirurgiao", e.target.value)}
+                onBlur={(e) => setCirField("cirurgiao", toTitleCase(e.target.value))}
               />
             </Field>
             <Field label="Anestesiologista">
@@ -196,6 +250,7 @@ export default function DadosPaciente() {
                 placeholder="Nome do anestesiologista"
                 value={cir.anestesista}
                 onChange={(e) => setCirField("anestesista", e.target.value)}
+                onBlur={(e) => setCirField("anestesista", toTitleCase(e.target.value))}
               />
             </Field>
           </div>
@@ -204,7 +259,7 @@ export default function DadosPaciente() {
 
       <SectionCard title="Intercorrências & Técnicas Anestésicas" tone="sky">
         <div className="grid gap-6">
-          {}
+          {/* switch */}
           <label className="flex items-center gap-3">
             <input
               type="checkbox"
@@ -213,16 +268,13 @@ export default function DadosPaciente() {
               onChange={(e) => {
                 const marcado = e.target.checked;
                 setHouveInter(marcado);
-                ficha.setIntercorrencias({
-                  houve: marcado,
-                  texto: marcado ? textoInter : "",
-                });
+                ficha.setIntercorrencias({ houve: marcado, texto: marcado ? textoInter : "" });
               }}
             />
             <span className="text-slate-700">Houve intercorrências</span>
           </label>
 
-          {}
+          {/* textarea condicional */}
           <div
             className={`transition-all duration-300 ${
               houveInter
@@ -244,7 +296,7 @@ export default function DadosPaciente() {
             />
           </div>
 
-          {}
+          {/* técnicas */}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
               "Geral Balanceada",
