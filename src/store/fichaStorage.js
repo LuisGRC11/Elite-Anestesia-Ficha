@@ -17,10 +17,28 @@ const initial = {
     equipamentos: {
       tci:false, bis:false, tof:false, multiparam:false, oxigenio:false,
       modelo:"", outros:"", ventilacao:"Espontânea",
-      // campos avançados (se estiver usando)
+
+      // ventilação detalhada
       vent_modo:"", vent_fio2:"", vent_peep:"", vent_ie:"", vent_rr:"", vent_vt_ml:"", vent_pinsp:"",
-      oxi_lpm:"", tci_modo:"", tci_alvo:"", tci_taxa_ml_h:"", bis_info:"",
+
+      // gases
+      oxi_lpm:"", arcomp:false, n2o:false, arcomp_litros:"", n2o_litros:"",
+
+      // TCI / TIVA
+      tci_modo:"", tci_alvo:"", tci_taxa_ml_h:"",
+      // >>> novos campos Parte 3:
+      tci_conc_val:"",            // valor numérico (BR: vírgula)
+      tci_conc_unit:"ng",         // "ng" | "mcg" | "mg"
+
+      // BIS/TOF
+      bis_info:"",
       tof_padrao:"", tof_musculo:"", tof_ratio:"",
+      // >>> novos campos Parte 3 (TOF):
+      tof_ptc:"",                 // 0–4 quando padrão PTC
+      tof_tetanica:false,         // true/false quando padrão Tetânico
+
+      // Halogenados — CAM (Parte 2)
+      cam_sevo:"", cam_halotano:"", cam_isoflurano:"", cam_enflurano:"",
     }
   },
 
@@ -49,7 +67,6 @@ function write(data) {
 export const ficha = {
   getAll() { return read(); },
 
-
   chartKey() { return `${KEY}:chart`; },
 
   resetAll() { write({ ...initial }); },
@@ -75,6 +92,12 @@ export const ficha = {
 
   addVital(v) {
     const s = read(); s.vitais.registros = [...s.vitais.registros, v]; write(s);
+  },
+  // >>> Parte 3: remover registro vital por índice
+  removeVital(i) {
+    const s = read();
+    s.vitais.registros = s.vitais.registros.filter((_, idx) => idx !== i);
+    write(s);
   },
 
   addMedAdministrada(m) {

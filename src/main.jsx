@@ -1,20 +1,21 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createHashRouter, RouterProvider } from "react-router-dom"; // ⬅️ trocado
+import { createHashRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import App from "./App";
-import { FichaProvider } from "./context/FichaContext.jsx";
 
+// pages carregadas sob demanda
 const DadosPaciente = React.lazy(() => import("./pages/DadosPaciente.jsx"));
 const SinaisVitais = React.lazy(() => import("./pages/SinaisVitais.jsx"));
 const MedicacoesEquipamentos = React.lazy(() => import("./pages/MedicacoesEquipamentos.jsx"));
 const RelatorioRPA = React.lazy(() => import("./pages/RelatorioRPA.jsx"));
+const NotFound = React.lazy(() => import("./pages/NotFound.jsx"));
 
 const suspense = (el) => (
   <React.Suspense fallback={<p className="p-6">Carregando...</p>}>{el}</React.Suspense>
 );
 
-const router = createHashRouter([ // ⬅️ trocado
+const router = createHashRouter([
   {
     path: "/",
     element: <App />,
@@ -23,14 +24,14 @@ const router = createHashRouter([ // ⬅️ trocado
       { path: "sinais-vitais", element: suspense(<SinaisVitais />) },
       { path: "medicacoes-e-equipamentos", element: suspense(<MedicacoesEquipamentos />) },
       { path: "relatorio-rpa", element: suspense(<RelatorioRPA />) },
+      { path: "*", element: suspense(<NotFound />) },
     ],
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <FichaProvider>
-      <RouterProvider router={router} />
-    </FichaProvider>
+    {/* Provider removido por não estar em uso neste momento */}
+    <RouterProvider router={router} />
   </React.StrictMode>
 );

@@ -12,7 +12,8 @@ export default function TabsNav() {
 
   async function onPDF() {
     try {
-      await gerarPDF("./elite-logo.png");
+      // usa caminho absoluto da pasta public/
+      await gerarPDF("/elite-logo.png");
     } catch (e) {
       console.error(e);
       alert("Erro ao gerar PDF. Veja o Console.");
@@ -38,6 +39,7 @@ export default function TabsNav() {
         to
       )} transition`}
       title={label}
+      aria-current={pathname === to ? "page" : undefined}
     >
       <span className="text-base sm:text-lg">{icon}</span>
       <span className="truncate">{short ?? label}</span>
@@ -46,23 +48,21 @@ export default function TabsNav() {
 
   return (
     <header className="sticky top-0 z-50">
-      {}
+      {/* faixa superior brand */}
       <div
         className="w-full"
         style={{
-          background:
-            `linear-gradient(90deg, ${BRAND.green} 0%, ${BRAND.blue} 100%)`,
+          background: `linear-gradient(90deg, ${BRAND.green} 0%, ${BRAND.blue} 100%)`,
         }}
       >
         <div className="mx-auto max-w-6xl px-4 py-2 flex items-center gap-3">
           <div className="flex items-center gap-2">
-
             <div className="text-white/95 font-extrabold tracking-tight">
               Elite <span className="font-black">Anestesia</span>
             </div>
           </div>
 
-          {}
+          {/* ações */}
           <div className="ml-auto flex items-center gap-2">
             <button
               onClick={onPDF}
@@ -82,35 +82,19 @@ export default function TabsNav() {
         </div>
       </div>
 
-      {}
+      {/* tabs */}
       <div className="bg-white/85 backdrop-blur border-b border-slate-200">
         <nav className="mx-auto max-w-6xl px-3 py-2">
-          {}
           <div className="grid grid-cols-4 gap-2">
-            <Tab
-              to="/"
-              icon=""
-              label="Dados do Paciente"
-              short="Paciente"
-            />
-            <Tab
-              to="/sinais-vitais"
-              icon=""
-              label="Sinais Vitais"
-              short="Sinais"
-            />
+            <Tab to="/" icon="" label="Dados do Paciente" short="Paciente" />
+            <Tab to="/sinais-vitais" icon="" label="Sinais Vitais" short="Sinais" />
             <Tab
               to="/medicacoes-e-equipamentos"
               icon=""
               label="Medicações & Equipamentos"
               short="Medicações"
             />
-            <Tab
-              to="/relatorio-rpa"
-              icon=""
-              label="Relatório & Cuidados RPA"
-              short="RPA"
-            />
+            <Tab to="/relatorio-rpa" icon="" label="Relatório & Cuidados RPA" short="RPA" />
           </div>
         </nav>
       </div>

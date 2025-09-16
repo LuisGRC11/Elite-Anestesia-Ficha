@@ -1,15 +1,20 @@
 export const inputBase =
-  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800 shadow-sm outline-none focus:ring-2 focus:ring-sky-300";
+  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800 shadow-sm outline-none " +
+  "focus-visible:ring-2 focus-visible:ring-sky-300 disabled:opacity-60 disabled:cursor-not-allowed transition-colors";
+
 export const selectBase =
-  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800 shadow-sm outline-none focus:ring-2 focus:ring-sky-300";
+  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800 shadow-sm outline-none " +
+  "focus-visible:ring-2 focus-visible:ring-sky-300 disabled:opacity-60 disabled:cursor-not-allowed transition-colors";
+
 export const checkboxBase =
-  "h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500";
+  "h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400";
 
 export function Page({ children }) {
   return <div className="mx-auto max-w-6xl px-4 py-6">{children}</div>;
 }
 
-export function SectionCard({ title, tone="sky", children }) {
+export function SectionCard({ title, tone = "sky", children }) {
   const bg =
     tone === "emerald" ? "from-emerald-50" :
     tone === "lavender" ? "from-indigo-50" : "from-sky-50";
@@ -23,7 +28,7 @@ export function SectionCard({ title, tone="sky", children }) {
   );
 }
 
-export function Field({ label, children, className="" }) {
+export function Field({ label, children, className = "" }) {
   return (
     <label className={`block ${className}`}>
       <div className="mb-1 text-xs font-semibold text-slate-600">{label}</div>
